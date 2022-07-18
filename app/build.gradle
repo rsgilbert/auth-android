@@ -1,6 +1,9 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    // hilt
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -58,4 +61,16 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+
+    // hilt dependencies
+    implementation("com.google.dagger:hilt-android:$hilt_version")
+    kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
+
+    // hilt testing dependency
+    androidTestImplementation("com.google.dagger:hilt-android-testing:$hilt_version")
+    // make hilt generate code in the androidTest folder
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
+
+    // splash screen
+    implementation 'androidx.core:core-splashscreen:1.0.0-rc01'
 }
