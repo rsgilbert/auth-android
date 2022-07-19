@@ -1,7 +1,11 @@
 package net.passioncloud.auth
 
+import android.accounts.Account
+import android.accounts.AccountManager
+import android.accounts.OnAccountsUpdateListener
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +23,7 @@ import net.passioncloud.auth.ui.theme.AuthTheme
 
 class MainActivity : ComponentActivity() {
     val mainViewModel : MainViewModel by viewModels()
+    private val tag = javaClass.simpleName
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,17 +46,32 @@ class MainActivity : ComponentActivity() {
             when(mainViewModel.authenticationStateLiveData.value) {
                 AuthenticationState.PendingAuthentication -> false
                 AuthenticationState.NotAuthenticated -> {
-                    val intent = Intent(this, LoginActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    Log.d(tag, "Not authenticated, adding account")
+                    val accountManager = AccountManager.get(this)
+                    accountManager.addAccount(
+                        mainViewModel.account.type,
+                        mainViewModel.authTokenType,
+                        emptyArray(),
+                        null,
+                        this,
+                        { future ->
+                            val bundle = future.result
+                            Log.d(tag, "Future result bundle for adding account is $bundle")
+                            restartActivity()
+                        },
+                        null
+                    )
                     true
                 }
-                AuthenticationState.Authenticated -> {
-                    true
-                }
+                AuthenticationState.Authenticated -> true
                 null -> false
             }
         }
+    }
+    private fun restartActivity() {
+        val intent = Intent(this, this::class.java)
+        startActivity(intent)
+        finish()
     }
 }
 
