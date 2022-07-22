@@ -7,12 +7,12 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import net.passioncloud.auth.MainActivity
 
 // See: http://www.digigene.com/android/accounts-in-android-part-two/
 class AppAccountAuthenticator(private val context: Context) :
     AbstractAccountAuthenticator(context) {
-    val tag = javaClass.simpleName
-    private val addAccountActivityClass = LoginActivity::class.java
+    private val tag = javaClass.simpleName
 
     override fun addAccount(
         response: AccountAuthenticatorResponse?,
@@ -21,9 +21,14 @@ class AppAccountAuthenticator(private val context: Context) :
         requiredFeatures: Array<out String>?,
         options: Bundle?
     ): Bundle {
-        Log.d(tag, "Adding account from authenticator")
-        val intent = makeIntent(response, accountType, authTokenType, requiredFeatures, options)
-        return makeBundle(intent)
+        // We open the app from its launcher screen
+        // We do not try to go straight to the login page
+        val intent = Intent(context, MainActivity::class.java)
+        intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, accountType)
+        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
+        val result = Bundle()
+        result.putParcelable(AccountManager.KEY_INTENT, intent)
+        return result
     }
 
     override fun confirmCredentials(
@@ -40,20 +45,16 @@ class AppAccountAuthenticator(private val context: Context) :
         authTokenType: String?,
         options: Bundle?
     ): Bundle {
-        Log.d(tag, "Getting auth token for account name ${account.name}")
-        Thread.sleep(5000)
-        Log.d(tag,"Woken up from sleep")
+        Log.d(tag, "Getting auth token for account name ${account.name} and auth token type $authTokenType")
         val result = Bundle()
+        Thread.sleep(5000)
         val accountManager = AccountManager.get(context)
-        val refreshToken = accountManager.getPassword(account)
-        if(refreshToken != null)
-         result.putString(AccountManager.KEY_AUTHTOKEN, "OLD_AUTH_TKN_PIE")
-
-        result.putString(AccountManager.KEY_PASSWORD, refreshToken)
+        result.putString(
+            AccountManager.KEY_AUTHTOKEN,
+            accountManager.peekAuthToken(account, authTokenType)
+        )
         result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name)
         result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type)
-
-        Log.d(tag, "auth token bundle $result, RefreshToken $refreshToken")
         return result
     }
 
@@ -82,52 +83,4 @@ class AppAccountAuthenticator(private val context: Context) :
         TODO("Not yet implemented")
     }
 
-    private fun makeIntent(
-        response: AccountAuthenticatorResponse?,
-        accountType: String?,
-        authTokenType: String?,
-        requiredFeatures: Array<out String>?,
-        options: Bundle?
-    ): Intent {
-        val result = Intent(context, addAccountActivityClass)
-        result.putExtra(AccountManager.KEY_ACCOUNT_TYPE, accountType)
-        result.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
-        return result
-    }
-
-    private fun makeBundle(intent: Intent): Bundle {
-        val result = Bundle()
-        result.putParcelable(AccountManager.KEY_INTENT, intent)
-        return result
-    }
 }
-//
-//class AuthenticatorManager {
-//    fun getAccessTokenCallback(authTokenType: String, options: Bundle, account: Account): AccountManagerCallback<Bundle> {
-//        return AccountManagerCallback<Bundle> {  future ->
-//            try {
-//                val bundle = future.result
-//                val accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME, null)
-//                val refreshToken = bundle.getString(AccountManager.KEY_PASSWORD, null)
-//                val authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN, null)
-//                if (authToken != null) {
-//                    signInAndDoAfter(account, authTokenType, authToken, options)
-//                } else {
-//                    if (refreshToken != null) {
-//                        signUpAndDoAfter(account, authTokenType, refreshToken, options)
-//                    } else {
-//                        if (accountName != null) {
-//                            addAccount(authTokenType, null, options)
-//                        } else {
-//                            Toast.makeText(context, "Account does not exist", Toast.LENGTH_LONG)
-//                                .show()
-//                        }
-//                    }
-//                }
-//            }
-//            catch(e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
-//    }
-//}

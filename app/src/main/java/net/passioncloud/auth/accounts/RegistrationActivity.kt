@@ -6,18 +6,11 @@ import android.accounts.AccountManager
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.widget.Toast
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.ui.Modifier
-import net.passioncloud.auth.Greeting
 import net.passioncloud.auth.R
-import net.passioncloud.auth.ui.theme.AuthTheme
 
 class RegistrationActivity : AccountAuthenticatorActivity(){
     private val accountName = "Gilbert account"
-    private val accountType = resources.getString(R.string.auth_account_type)
+    private val accountType = resources.getString(R.string.account_type)
     private val authTokenType = "Simple auth token type"
 
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {

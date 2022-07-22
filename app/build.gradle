@@ -2,8 +2,8 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
-    // hilt
-    id 'dagger.hilt.android.plugin'
+//    // hilt
+//    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -49,6 +49,15 @@ android {
 }
 
 dependencies {
+    def version_retrofit = '2.9.0'
+    def version_timber = "4.7.1"
+    def version_gson = '2.9.0'
+    def roomVersion = "2.4.2"
+    def version_retrofit_gson = "2.6.2"
+    def version_lifecycle = '2.5.0'
+    def version_lifecycle_extensions = "2.2.0"
+    def version_livedata = '2.6.0-alpha01'
+    def version_activity = "1.5.0"
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation "androidx.compose.ui:ui:$compose_version"
@@ -61,16 +70,60 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation "androidx.navigation:navigation-compose:2.4.0-beta02"
 
     // hilt dependencies
     implementation("com.google.dagger:hilt-android:$hilt_version")
-    kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
+//    kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
 
     // hilt testing dependency
     androidTestImplementation("com.google.dagger:hilt-android-testing:$hilt_version")
     // make hilt generate code in the androidTest folder
-    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
+//    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
 
     // splash screen
     implementation 'androidx.core:core-splashscreen:1.0.0-rc01'
+
+    //define a BOM and its version
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.9.0"))
+    //define any required ok http without version
+    implementation('com.squareup.okhttp3:okhttp:5.0.0-alpha.10')
+    implementation('com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.10')
+
+    // ViewModel and LiveData
+    implementation "androidx.lifecycle:lifecycle-extensions:$version_lifecycle_extensions"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$version_livedata"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$version_lifecycle"
+    implementation "androidx.fragment:fragment-ktx:1.2.0"
+    implementation "androidx.activity:activity-ktx:$version_activity"
+    implementation 'androidx.compose.runtime:runtime-livedata:1.2.0-beta01'
+
+    // vieModel in compose
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$version_lifecycle"
+
+    // room
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+
+    // To use Kotlin annotation processing tool (kapt)
+    kapt("androidx.room:room-compiler:$roomVersion")
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation("androidx.room:room-ktx:$roomVersion")
+    // optional - Test helpers
+    testImplementation("androidx.room:room-testing:$roomVersion")
+
+    // retrofit
+    implementation "com.squareup.retrofit2:retrofit:$version_retrofit"
+    implementation "com.squareup.retrofit2:converter-scalars:$version_retrofit"
+    // gson
+    implementation "com.google.code.gson:gson:$version_gson"
+    implementation "com.squareup.retrofit2:converter-gson:$version_retrofit_gson"
+    // timber logging
+    implementation "com.jakewharton.timber:timber:$version_timber"
+
+    // kotlin serialization
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
+
+    // image download and rendering
+    implementation 'io.coil-kt:coil-compose:2.1.0'
 }

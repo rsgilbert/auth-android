@@ -7,12 +7,14 @@ import android.app.Application
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
 
 enum class AuthenticationState {
     Authenticated,
@@ -20,30 +22,33 @@ enum class AuthenticationState {
     NotAuthenticated
 }
 
+data class MainUiState(
+    var authenticationState: AuthenticationState = AuthenticationState.PendingAuthentication,
+    var authToken: String = ""
+)
+
 class MainViewModel(private val app: Application) : AndroidViewModel(app) {
-    private val tag = javaClass.simpleName
+
+    private val tag = "MainVM"
     val authenticationStateLiveData: MutableLiveData<AuthenticationState> =
         MutableLiveData(AuthenticationState.PendingAuthentication)
+    val authTokenLiveData: MutableLiveData<String> = MutableLiveData("Coming up")
     private val accountManager = AccountManager.get(app.applicationContext)
     val authTokenType = "Simple auth token type"
     private var authToken: String = ""
     val account = Account("Peter", "Auth")
     init {
-        Log.d(tag, "Beginning hunt, for auth token of account $account with account name ${account.name}")
-        val f = accountManager.getAuthToken(account, authTokenType, null,true, { future ->
+       val f = accountManager.getAuthToken(account, authTokenType, null,true, { future ->
             val bundle = future.result
-            val accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME, null)
-            val refreshToken = bundle.getString(AccountManager.KEY_PASSWORD, null)
             authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN, "")
-            Log.d(tag, "Auth token is $authToken and refresh token is $refreshToken and accountName is $accountName")
-            if (authToken.isBlank()) {
+            Log.d(tag, "Auth token is $authToken")
+            if (TextUtils.isEmpty(authToken)) {
                 Log.d(tag, "Auth token was blank")
-                authenticationStateLiveData.value = AuthenticationState.NotAuthenticated
-            } else {
                 authenticationStateLiveData.value = AuthenticationState.Authenticated
-            }
+               } else {
+                authenticationStateLiveData.value = AuthenticationState.Authenticated
+               }
+           authTokenLiveData.value = "XYZ"
         }, null)
-        Log.d(tag, "Finished account manager future $f")
-
     }
 }
